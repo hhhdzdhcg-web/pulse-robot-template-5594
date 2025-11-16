@@ -1,0 +1,347 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { authFetch } from '@/lib/authFetch';
+import { API_ENDPOINTS } from '@/config/api';
+import DashboardLayout from '@/components/DashboardLayout';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { UserPlus, Pencil, Trash2, ChevronLeft, ChevronRight, Eye, KeyRound, Lock, LockOpen } from 'lucide-react';
+import { useAuth, User } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import EditUserDialog from './EditUserDialog';
+import ViewUserDialog from './ViewUserDialog';
+import ChangePasswordDialog from './ChangePasswordDialog';
+
+interface UsersResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: User[];
+}
+
+export default function UserManagement() {
+  const navigate = useNavigate();
+  const { user, updateUser, deleteUser } = useAuth();
+  const { toast } = useToast();
+  const [users, setUsers] = useState<User[]>([]);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [viewingUser, setViewingUser] = useState<User | null>(null);
+  const [changingPasswordUser, setChangingPasswordUser] = useState<User | null>(null);
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const itemsPerPage = 20; // har sahifadagi foydalanuvchilar soni
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
+
+  useEffect(() => {
+    fetchUsers(currentPage);
+  }, [currentPage]);
+
+  const fetchUsers = async (page: number) => {
+    setIsLoading(true);
+    try {
+      const url = page === 1
+        ? `${API_ENDPOINTS.USERS_LIST}` // page 1 uchun ?page param qo'shilmaydi
+        : `${API_ENDPOINTS.USERS_LIST}?page=${page}`;
+        
+      const response = await authFetch(url, { method: 'GET' });
+
+      if (!response.ok) {
+        throw new Error('Foydalanuvchilarni yuklashda xatolik');
+      }
+
+      const data: UsersResponse = await response.json();
+      const filteredUsers = data.results.filter(u => u.role === 'student');
+      setUsers(filteredUsers.length > 0 ? filteredUsers : data.results);
+      setTotalCount(data.count);
+
+    } catch (error) {
+      toast({
+        title: 'Xato',
+        description: error instanceof Error ? error.message : 'Foydalanuvchilarni yuklashda xatolik',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEdit = (userToEdit: User) => setEditingUser(userToEdit);
+
+  const handleSave = (id: string, data: Partial<User>) => {
+    updateUser(id, data);
+    setUsers(users.map(u => u.id === id ? { ...u, ...data } : u));
+    toast({
+      title: 'Saqlandi',
+      description: 'Foydalanuvchi ma\'lumotlari yangilandi',
+    });
+  };
+
+  const handleToggleActive = async (userId: string, currentStatus: boolean) => {
+    try {
+      const formData = new FormData();
+      formData.append("is_active", (!currentStatus).toString()); // booleanni stringga o‘tkazamiz
+
+      const response = await authFetch(`/users/users/${userId}/`, {
+        method: 'PATCH',
+        body: formData, // JSON o‘rniga FormData yuboramiz
+      });
+
+      if (!response.ok) {
+        throw new Error('Holatni o\'zgartirishda xatolik');
+      }
+
+      // State-dagi foydalanuvchini yangilash
+      setUsers(users.map(u => u.id === userId ? { ...u, is_active: !currentStatus } : u));
+
+      toast({
+        title: 'Muvaffaqiyatli',
+        description: !currentStatus ? 'Foydalanuvchi faollashtirildi' : 'Foydalanuvchi bloklandi',
+      });
+
+      fetchUsers(currentPage); // optional, sahifani yangilash
+    } catch (error) {
+      toast({
+        title: 'Xato',
+        description: error instanceof Error ? error.message : 'Holatni o\'zgartirishda xatolik',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deletingUserId) return;
+
+    try {
+      const response = await authFetch(`/users/users/${deletingUserId}/`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Foydalanuvchini o‘chirishda xatolik');
+      }
+
+      // State-dan o'chirish
+      setUsers(users.filter(u => u.id !== deletingUserId));
+
+      toast({
+        title: 'O‘chirildi',
+        description: 'Foydalanuvchi muvaffaqiyatli o‘chirildi',
+      });
+
+      setDeletingUserId(null);
+    } catch (error) {
+      toast({
+        title: 'Xato',
+        description: error instanceof Error ? error.message : 'Foydalanuvchini o‘chirishda xatolik',
+        variant: 'destructive',
+      });
+    }
+  };
+
+
+  const getLevelColor = (level?: string) => {
+    switch (level) {
+      case 'beginner': return 'bg-green-500';
+      case 'intermediate': return 'bg-yellow-500';
+      case 'expert': return 'bg-red-500';
+      default: return 'bg-gray-500';
+    }
+  };
+
+  const getLevelText = (level?: string) => {
+    switch (level) {
+      case 'beginner': return 'Boshlang\'ich';
+      case 'intermediate': return 'O\'rta';
+      case 'expert': return 'Ekspert';
+      default: return level;
+    }
+  };
+
+  if (user?.role !== 'admin') return null;
+
+  return (
+    <DashboardLayout>
+      <div className="space-y-6 animate-fade-in">
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold text-foreground">Foydalanuvchilar</h1>
+          <Button onClick={() => navigate('/dashboard/admin/add-user')}>
+            <UserPlus className="mr-2 h-4 w-4" />
+            Yangi foydalanuvchi
+          </Button>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Barcha foydalanuvchilar ({totalCount})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="flex justify-center py-8">
+                <p className="text-muted-foreground">Yuklanmoqda...</p>
+              </div>
+            ) : (
+              <>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Ism</TableHead>
+                      <TableHead>Username</TableHead>
+                      <TableHead>Telefon</TableHead>
+                      <TableHead>Kurs</TableHead>
+                      <TableHead>Level</TableHead>
+                      <TableHead>Yo'nalish</TableHead>
+                      <TableHead>Tangalar</TableHead>
+                      <TableHead>Holat</TableHead>
+                      <TableHead className="text-right">Amallar</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {users.map((student, index) => (
+                      <TableRow key={student.id}>
+                        {/* Tartib raqami */}
+                        <TableCell className="font-medium">{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
+
+                        <TableCell className="font-medium">{student.first_name} {student.last_name}</TableCell>
+                        <TableCell>{student.username}</TableCell>
+                        <TableCell>{student.phone_number}</TableCell>
+                        <TableCell>{student.course}</TableCell>
+                        <TableCell>
+                          <Badge className={getLevelColor(student.level)}>{getLevelText(student.level)}</Badge>
+                        </TableCell>
+                        <TableCell>{student.direction}</TableCell>
+                        <TableCell>
+                          <Badge variant="secondary" className="gap-1">
+                            <span className="text-yellow-500">⭐</span>
+                            {student.coins || 0}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant={student.is_active ? 'default' : 'destructive'}
+                            size="sm"
+                            onClick={() => handleToggleActive(student.id, student.is_active || false)}
+                          >
+                            {student.is_active ? (
+                              <>
+                                <LockOpen className="h-3 w-3 mr-1" />
+                                Faol
+                              </>
+                            ) : (
+                              <>
+                                <Lock className="h-3 w-3 mr-1" />
+                                Bloklangan
+                              </>
+                            )}
+                          </Button>
+                        </TableCell>
+                        <TableCell className="text-right space-x-2">
+                          <Button variant="ghost" size="icon" onClick={() => setViewingUser(student)}>
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => setChangingPasswordUser(student)}>
+                            <KeyRound className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => handleEdit(student)}>
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => setDeletingUserId(student.id)}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+
+                {/* Pagination */}
+                <div className="flex items-center justify-between mt-6 pt-6 border-t">
+                  <div className="text-sm text-muted-foreground">
+                    Sahifa {currentPage} dan {totalPages}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      disabled={currentPage === 1 || isLoading}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      Oldingi
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages || isLoading}
+                    >
+                      Keyingi
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <ViewUserDialog
+        user={viewingUser}
+        open={!!viewingUser}
+        onOpenChange={(open) => !open && setViewingUser(null)}
+      />
+
+      <ChangePasswordDialog
+        userId={changingPasswordUser?.id || ''}
+        userName={changingPasswordUser ? `${changingPasswordUser.first_name} ${changingPasswordUser.last_name}` : ''}
+        open={!!changingPasswordUser}
+        onOpenChange={(open) => !open && setChangingPasswordUser(null)}
+      />
+
+      <EditUserDialog
+        user={editingUser}
+        open={!!editingUser}
+        onOpenChange={(open) => !open && setEditingUser(null)}
+        onSave={handleSave}
+      />
+
+      <AlertDialog open={!!deletingUserId} onOpenChange={(open) => !open && setDeletingUserId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Foydalanuvchini o'chirish</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bu amalni bekor qilib bo'lmaydi. Foydalanuvchi butunlay o'chiriladi.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Bekor qilish</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              O'chirish
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </DashboardLayout>
+  );
+}
