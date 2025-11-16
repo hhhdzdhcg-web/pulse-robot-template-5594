@@ -283,69 +283,18 @@ export default function UserManagement() {
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="text-sm text-muted-foreground">#{(currentPage - 1) * itemsPerPage + index + 1}</span>
-                              <Badge variant={student.is_active ? 'default' : 'destructive'} className="text-xs">
-                                {student.is_active ? 'Faol' : 'Bloklangan'}
-                              </Badge>
+                              <span className="text-sm font-semibold text-primary">#{(currentPage - 1) * itemsPerPage + index + 1}</span>
                             </div>
                             <h3 className="font-semibold text-base">{student.first_name} {student.last_name}</h3>
-                            <p className="text-sm text-muted-foreground">@{student.username}</p>
+                            <p className="text-sm text-muted-foreground">{student.course}</p>
                           </div>
-                          <Badge variant="secondary" className="gap-1">
-                            <span className="text-yellow-500">⭐</span>
-                            {student.coins || 0}
-                          </Badge>
-                        </div>
-                        
-                        <div className="space-y-2 text-sm">
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Telefon:</span>
-                            <span className="font-medium">{student.phone_number}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Kurs:</span>
-                            <span>{student.course}</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-muted-foreground">Level:</span>
-                            <Badge className={getLevelColor(student.level)}>{getLevelText(student.level)}</Badge>
-                          </div>
-                          <div className="flex flex-col gap-1">
-                            <span className="text-muted-foreground">Yo'nalish:</span>
-                            <span className="text-xs break-words">{student.direction}</span>
-                          </div>
-                        </div>
-
-                        <div className="flex flex-wrap gap-2 pt-3 border-t">
                           <Button 
-                            variant={student.is_active ? 'default' : 'destructive'} 
-                            size="sm"
-                            className="flex-1"
-                            onClick={() => handleToggleActive(student.id, student.is_active || false)}
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => setViewingUser(student)}
+                            className="flex-shrink-0"
                           >
-                            {student.is_active ? (
-                              <>
-                                <LockOpen className="h-3 w-3 mr-1" />
-                                Faol
-                              </>
-                            ) : (
-                              <>
-                                <Lock className="h-3 w-3 mr-1" />
-                                Blok
-                              </>
-                            )}
-                          </Button>
-                          <Button variant="ghost" size="sm" onClick={() => setViewingUser(student)}>
                             <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm" onClick={() => setChangingPasswordUser(student)}>
-                            <KeyRound className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm" onClick={() => handleEdit(student)}>
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm" onClick={() => setDeletingUserId(student.id)}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
                         </div>
                       </div>

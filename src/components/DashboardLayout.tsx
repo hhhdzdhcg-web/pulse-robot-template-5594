@@ -24,16 +24,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const navItems = user?.role === 'admin' 
     ? [
-        { path: '/dashboard/admin/users', label: 'Foydalanuvchilar', icon: Users },
-        { path: '/dashboard/admin/qr-scanner', label: 'QR Skaner', icon: ScanLine },
-        { path: '/dashboard/profile', label: 'Profil', icon: User },
-        { path: '/dashboard/statistics', label: 'Statistika', icon: BarChart3 },
-        { path: '/dashboard/settings', label: 'Sozlamalar', icon: Settings },
+        { path: '/dashboard/admin/users', label: 'Users', icon: Users },
+        { path: '/dashboard/admin/qr-scanner', label: 'Scanner', icon: ScanLine },
+        { path: '/dashboard/profile', label: 'Profile', icon: User },
+        { path: '/dashboard/statistics', label: 'Stats', icon: BarChart3 },
+        { path: '/dashboard/settings', label: 'Settings', icon: Settings },
       ]
     : [
-        { path: '/dashboard/profile', label: 'Profil', icon: User },
-        { path: '/dashboard/statistics', label: 'Statistika', icon: BarChart3 },
-        { path: '/dashboard/settings', label: 'Sozlamalar', icon: Settings },
+        { path: '/dashboard/profile', label: 'Profile', icon: User },
+        { path: '/dashboard/statistics', label: 'Stats', icon: BarChart3 },
+        { path: '/dashboard/settings', label: 'Settings', icon: Settings },
       ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -133,7 +133,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               className="flex flex-col items-center gap-1 px-4 py-2 rounded-lg text-sidebar-foreground"
             >
               <LogOut className="h-6 w-6" />
-              <span className="text-xs font-medium">Chiqish</span>
+              <span className="text-xs font-medium">Logout</span>
             </button>
           </div>
         </nav>
