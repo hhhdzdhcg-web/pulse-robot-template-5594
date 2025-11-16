@@ -12,6 +12,7 @@ import Statistics from "./pages/Statistics";
 import Settings from "./pages/Settings";
 import UserManagement from "./pages/admin/UserManagement";
 import AddUser from "./pages/admin/AddUser";
+import QRScannerPage from "./pages/admin/QRScanner";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -77,6 +78,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <AddUser />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/dashboard/admin/qr-scanner" 
+                element={
+                  <ProtectedRoute>
+                    <QRScannerPage />
                   </ProtectedRoute>
                 } 
               />

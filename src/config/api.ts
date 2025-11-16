@@ -16,4 +16,7 @@ export const API_ENDPOINTS = {
   
   // Statistics
   STATISTICS: '/users/statistics/',
+  
+  // Check User
+  CHECK_USER: '/users/check-users/',
 };
