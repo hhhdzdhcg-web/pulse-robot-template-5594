@@ -202,44 +202,125 @@ export default function UserManagement() {
               </div>
             ) : (
               <>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Ism</TableHead>
-                      <TableHead>Username</TableHead>
-                      <TableHead>Telefon</TableHead>
-                      <TableHead>Kurs</TableHead>
-                      <TableHead>Level</TableHead>
-                      <TableHead>Yo'nalish</TableHead>
-                      <TableHead>Tangalar</TableHead>
-                      <TableHead>Holat</TableHead>
-                      <TableHead className="text-right">Amallar</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {users.map((student, index) => (
-                      <TableRow key={student.id}>
-                        {/* Tartib raqami */}
-                        <TableCell className="font-medium">{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
+                {/* Desktop Table View */}
+                <div className="hidden lg:block overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Ism</TableHead>
+                        <TableHead>Username</TableHead>
+                        <TableHead>Telefon</TableHead>
+                        <TableHead>Kurs</TableHead>
+                        <TableHead>Level</TableHead>
+                        <TableHead>Yo'nalish</TableHead>
+                        <TableHead>Tangalar</TableHead>
+                        <TableHead>Holat</TableHead>
+                        <TableHead className="text-right">Amallar</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {users.map((student, index) => (
+                        <TableRow key={student.id}>
+                          <TableCell className="font-medium">{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
+                          <TableCell className="font-medium">{student.first_name} {student.last_name}</TableCell>
+                          <TableCell>{student.username}</TableCell>
+                          <TableCell>{student.phone_number}</TableCell>
+                          <TableCell>{student.course}</TableCell>
+                          <TableCell>
+                            <Badge className={getLevelColor(student.level)}>{getLevelText(student.level)}</Badge>
+                          </TableCell>
+                          <TableCell>{student.direction}</TableCell>
+                          <TableCell>
+                            <Badge variant="secondary" className="gap-1">
+                              <span className="text-yellow-500">⭐</span>
+                              {student.coins || 0}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant={student.is_active ? 'default' : 'destructive'}
+                              size="sm"
+                              onClick={() => handleToggleActive(student.id, student.is_active || false)}
+                            >
+                              {student.is_active ? (
+                                <>
+                                  <LockOpen className="h-3 w-3 mr-1" />
+                                  Faol
+                                </>
+                              ) : (
+                                <>
+                                  <Lock className="h-3 w-3 mr-1" />
+                                  Bloklangan
+                                </>
+                              )}
+                            </Button>
+                          </TableCell>
+                          <TableCell className="text-right space-x-2">
+                            <Button variant="ghost" size="icon" onClick={() => setViewingUser(student)}>
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => setChangingPasswordUser(student)}>
+                              <KeyRound className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleEdit(student)}>
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => setDeletingUserId(student.id)}>
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
 
-                        <TableCell className="font-medium">{student.first_name} {student.last_name}</TableCell>
-                        <TableCell>{student.username}</TableCell>
-                        <TableCell>{student.phone_number}</TableCell>
-                        <TableCell>{student.course}</TableCell>
-                        <TableCell>
-                          <Badge className={getLevelColor(student.level)}>{getLevelText(student.level)}</Badge>
-                        </TableCell>
-                        <TableCell>{student.direction}</TableCell>
-                        <TableCell>
+                {/* Mobile Card View */}
+                <div className="lg:hidden space-y-4">
+                  {users.map((student, index) => (
+                    <Card key={student.id} className="p-4">
+                      <div className="space-y-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-sm text-muted-foreground">#{(currentPage - 1) * itemsPerPage + index + 1}</span>
+                              <Badge variant={student.is_active ? 'default' : 'destructive'} className="text-xs">
+                                {student.is_active ? 'Faol' : 'Bloklangan'}
+                              </Badge>
+                            </div>
+                            <h3 className="font-semibold text-base">{student.first_name} {student.last_name}</h3>
+                            <p className="text-sm text-muted-foreground">@{student.username}</p>
+                          </div>
                           <Badge variant="secondary" className="gap-1">
                             <span className="text-yellow-500">⭐</span>
                             {student.coins || 0}
                           </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant={student.is_active ? 'default' : 'destructive'}
+                        </div>
+                        
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Telefon:</span>
+                            <span className="font-medium">{student.phone_number}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Kurs:</span>
+                            <span>{student.course}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-muted-foreground">Level:</span>
+                            <Badge className={getLevelColor(student.level)}>{getLevelText(student.level)}</Badge>
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <span className="text-muted-foreground">Yo'nalish:</span>
+                            <span className="text-xs break-words">{student.direction}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2 pt-3 border-t">
+                          <Button 
+                            variant={student.is_active ? 'default' : 'destructive'} 
                             size="sm"
+                            className="flex-1"
                             onClick={() => handleToggleActive(student.id, student.is_active || false)}
                           >
                             {student.is_active ? (
@@ -250,32 +331,30 @@ export default function UserManagement() {
                             ) : (
                               <>
                                 <Lock className="h-3 w-3 mr-1" />
-                                Bloklangan
+                                Blok
                               </>
                             )}
                           </Button>
-                        </TableCell>
-                        <TableCell className="text-right space-x-2">
-                          <Button variant="ghost" size="icon" onClick={() => setViewingUser(student)}>
+                          <Button variant="ghost" size="sm" onClick={() => setViewingUser(student)}>
                             <Eye className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" onClick={() => setChangingPasswordUser(student)}>
+                          <Button variant="ghost" size="sm" onClick={() => setChangingPasswordUser(student)}>
                             <KeyRound className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" onClick={() => handleEdit(student)}>
+                          <Button variant="ghost" size="sm" onClick={() => handleEdit(student)}>
                             <Pencil className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" onClick={() => setDeletingUserId(student.id)}>
+                          <Button variant="ghost" size="sm" onClick={() => setDeletingUserId(student.id)}>
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
 
                 {/* Pagination */}
-                <div className="flex items-center justify-between mt-6 pt-6 border-t">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-6 border-t">
                   <div className="text-sm text-muted-foreground">
                     Sahifa {currentPage} dan {totalPages}
                   </div>
@@ -287,7 +366,7 @@ export default function UserManagement() {
                       disabled={currentPage === 1 || isLoading}
                     >
                       <ChevronLeft className="h-4 w-4" />
-                      Oldingi
+                      <span className="hidden sm:inline">Oldingi</span>
                     </Button>
                     <Button
                       variant="outline"
@@ -295,7 +374,7 @@ export default function UserManagement() {
                       onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                       disabled={currentPage === totalPages || isLoading}
                     >
-                      Keyingi
+                      <span className="hidden sm:inline">Keyingi</span>
                       <ChevronRight className="h-4 w-4" />
                     </Button>
                   </div>

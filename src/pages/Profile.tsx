@@ -134,98 +134,102 @@ export default function Profile() {
 
   return (
     <DashboardLayout>
-      <div className={`space-y-6 animate-fade-in-up`}>
-        <h1 className="text-3xl font-bold text-foreground">Profil</h1>
-        <div className="grid gap-6 md:grid-cols-2">
+      <div className="space-y-4 sm:space-y-6 animate-fade-in-up px-2 sm:px-0">
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Profil</h1>
+        <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
           {/* Left Side: Main Info */}
-          <Card className={`glass-card-bg p-4 border-none ${getNeonClass(displayUser.level)}`}>
-            <CardHeader>
-              <CardTitle>Shaxsiy ma'lumotlar</CardTitle>
+          <Card className={`glass-card-bg p-3 sm:p-4 border-none ${getNeonClass(displayUser.level)}`}>
+            <CardHeader className="p-3 sm:p-6">
+              <CardTitle className="text-lg sm:text-xl">Shaxsiy ma'lumotlar</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center space-x-4">
-                <Avatar className="h-20 w-20">
+            <CardContent className="space-y-4 sm:space-y-6 p-3 sm:p-6">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-3 sm:space-y-0 sm:space-x-4">
+                <Avatar className="h-16 w-16 sm:h-20 sm:w-20">
                   <AvatarImage src={displayUser.photo} alt={displayUser.first_name} />
-                  <AvatarFallback className="text-lg">
+                  <AvatarFallback className="text-base sm:text-lg">
                     {(displayUser.first_name?.[0] || '') + (displayUser.last_name?.[0] || '')}
                   </AvatarFallback>
                 </Avatar>
-                <div>
-                  <h3 className="text-xl font-semibold text-foreground">
+                <div className="text-center sm:text-left">
+                  <h3 className="text-lg sm:text-xl font-semibold text-foreground break-words">
                     {displayUser.first_name || displayUser.first_name} {displayUser.last_name || displayUser.last_name}
                   </h3>
-                  <p className="text-muted-foreground">@{displayUser.username}</p>
+                  <p className="text-sm sm:text-base text-muted-foreground break-all">@{displayUser.username}</p>
                   <div className="mt-2">
-                    <Badge variant="secondary">{displayUser.role === 'student' ? 'Talaba' : 'Admin'}</Badge>
+                    <Badge variant="secondary" className="text-xs sm:text-sm">
+                      {displayUser.role === 'student' ? 'Talaba' : 'Admin'}
+                    </Badge>
                   </div>
                 </div>
               </div>
-              <div className="space-y-3 mt-4">
-                <div className="flex items-center space-x-3">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
+              <div className="space-y-2 sm:space-y-3 mt-4">
+                <div className="flex items-center space-x-2 sm:space-x-3">
+                  <Phone className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
                   <a
                     href={`tel:${displayUser.phone_number}`}
-                    className="text-blue-500 underline"
+                    className="text-sm sm:text-base text-blue-500 underline break-all"
                   >
                     {displayUser.phone_number}
                   </a>
                 </div>
                 {displayUser.tg_username && (
-                  <div className="flex items-center space-x-3">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
+                  <div className="flex items-center space-x-2 sm:space-x-3">
+                    <Mail className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
                     <a
                       href={displayUser.tg_username}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-500 underline"
+                      className="text-sm sm:text-base text-blue-500 underline"
                     >
                       Telegram
                     </a>
                   </div>
                 )}
                 {displayUser.course && (
-                  <div className="flex items-center space-x-3">
-                    <UserIcon className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-foreground">{displayUser.course}</span>
+                  <div className="flex items-center space-x-2 sm:space-x-3">
+                    <UserIcon className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                    <span className="text-sm sm:text-base text-foreground break-words">{displayUser.course}</span>
                   </div>
                 )}
                 {displayUser.level && (
-                  <div className="flex items-center space-x-3">
-                    <span className="text-muted-foreground">Level:</span>
-                    <Badge className={getLevelColor(displayUser.level)}>
+                  <div className="flex items-center space-x-2 sm:space-x-3 flex-wrap">
+                    <span className="text-sm sm:text-base text-muted-foreground">Level:</span>
+                    <Badge className={`${getLevelColor(displayUser.level)} text-xs sm:text-sm`}>
                       {getLevelText(displayUser.level)}
                     </Badge>
                   </div>
                 )}
                 {displayUser.direction && (
-                  <div className="flex items-center space-x-3">
-                    <span className="text-muted-foreground">Yo'nalish:</span>
-                    <span className="text-foreground">{displayUser.direction}</span>
+                  <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-3">
+                    <span className="text-sm sm:text-base text-muted-foreground">Yo'nalish:</span>
+                    <span className="text-sm sm:text-base text-foreground break-words">{displayUser.direction}</span>
                   </div>
                 )}
-                <div className="flex items-center space-x-3">
-                  <Coins className="h-4 w-4 text-yellow-500" />
-                  <span className="text-muted-foreground">Tangalar:</span>
-                  <span className="text-foreground font-bold">{displayUser.coins || 0}</span>
+                <div className="flex items-center space-x-2 sm:space-x-3">
+                  <Coins className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-500 flex-shrink-0" />
+                  <span className="text-sm sm:text-base text-muted-foreground">Tangalar:</span>
+                  <span className="text-sm sm:text-base text-foreground font-bold">{displayUser.coins || 0}</span>
                 </div>
               </div>
             </CardContent>
           </Card>
           {/* Right Side: QR Code and UUID */}
-          <Card className={`glass-card-bg border-none ${getNeonClass(displayUser.level)}`}  >
-            <CardHeader>
-              <CardTitle>QR Kod & UUID</CardTitle>
+          <Card className={`glass-card-bg border-none ${getNeonClass(displayUser.level)}`}>
+            <CardHeader className="p-3 sm:p-6">
+              <CardTitle className="text-lg sm:text-xl">QR Kod & UUID</CardTitle>
             </CardHeader>
-            <CardContent className="flex flex-col items-center">
+            <CardContent className="flex flex-col items-center p-3 sm:p-6">
               {displayUser.image_qrkod && (
                 <img
                   src={displayUser.image_qrkod}
                   alt="QR Kod"
-                  className="w-70 h-70 object-contain mb-4 border rounded-lg"
+                  className="w-48 h-48 sm:w-64 sm:h-64 md:w-72 md:h-72 object-contain mb-4 border rounded-lg"
                 />
               )}
-              <div className="text-center">
-                <div className="font-mono text-lg text-foreground">UUID: {displayUser.uuid}</div>
+              <div className="text-center break-all px-2">
+                <div className="font-mono text-sm sm:text-base md:text-lg text-foreground">
+                  UUID: {displayUser.uuid}
+                </div>
               </div>
             </CardContent>
           </Card>
