@@ -93,7 +93,7 @@ export default function EditUserDialog({ user, open, onOpenChange, onSave }: Edi
       formData.append("level", data.level);
       formData.append("course", convertCourse(data.course));
       formData.append("direction", data.direction);
-      formData.append("coins", data.coins);
+      formData.append("coins", String(data.coins));
 
       // Rasm faylini qo‘shish (agar mavjud bo‘lsa)
       if (photoFile) {

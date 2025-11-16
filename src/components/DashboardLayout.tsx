@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { LogOut, User, BarChart3, Settings, Users } from 'lucide-react';
+import { LogOut, User, BarChart3, Settings, Users, ScanLine } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
@@ -25,6 +25,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const navItems = user?.role === 'admin' 
     ? [
         { path: '/dashboard/admin/users', label: 'Foydalanuvchilar', icon: Users },
+        { path: '/dashboard/admin/qr-scanner', label: 'QR Skaner', icon: ScanLine },
         { path: '/dashboard/profile', label: 'Profil', icon: User },
         { path: '/dashboard/statistics', label: 'Statistika', icon: BarChart3 },
         { path: '/dashboard/settings', label: 'Sozlamalar', icon: Settings },
